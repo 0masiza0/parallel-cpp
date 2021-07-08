@@ -33,11 +33,11 @@ class Philosopher {
  public:
   Philosopher(size_t id, Fork* left_fork, Fork* right_fork)
     : id_(id)
-    , left_fork_(left_fork)
-    , right_fork_(right_fork)
+    , min_id_fork_(left_fork)
+    , max_id_fork_(right_fork)
     {
-      if (left_fork_->Id() > right_fork_->Id()) {
-          std::swap(left_fork_, right_fork_);
+      if (min_id_fork_->Id() > max_id_fork_->Id()) {
+          std::swap(min_id_fork_, max_id_fork_);
       }
     }
 
@@ -46,26 +46,18 @@ class Philosopher {
   }
 
   void Eat() {
-    while (!left_locked_) {
-        left_locked_ = left_fork_->TryGet();
-    }
-    while (!right_locked_) {
-        right_locked_ = right_fork_->TryGet();
-    }
+    min_id_fork_->Get();
+    max_id_fork_->Get();
   }
 
   void Think() {
-    right_fork_->Put();
-    right_locked_ = false;
-    left_fork_->Put();
-    left_locked_ = false;
+    max_id_fork_->Put();
+    min_id_fork_->Put();
   }
 
  private:
   const size_t id_;
-  Fork* left_fork_;
-  Fork* right_fork_;
-  bool left_locked_ = false;
-  bool right_locked_ = false;
+  Fork* min_id_fork_;
+  Fork* max_id_fork_;
 };
 
