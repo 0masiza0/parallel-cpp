@@ -27,15 +27,11 @@ class ThreadSafeQueue {
   }
 
   std::optional<T> TryPop() {
-    bool free = mutex_.try_lock();
-    if (!free || queue_.empty()) {
-      if (free)
-          mutex_.unlock();
-      return std::nullopt;
-    }
+    std::unique_lock lock(mutex_);
+    if (queue_.empty())
+        return std::optional<T>();
     auto value = queue_.front();
     queue_.pop();
-    mutex_.unlock();
     return value;
   }
 
