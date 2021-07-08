@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 
 class SpinLock {
  public:
@@ -7,14 +8,14 @@ class SpinLock {
   }
 
   void Lock() {
-    // Your code
+    while (flag.test_and_set()) {}
   }
 
   void Unlock() {
-    // Your code
+    flag.clear();
   }
 
  private:
-  // Your code
+  std::atomic_flag flag = ATOMIC_FLAG_INIT;
 };
 
