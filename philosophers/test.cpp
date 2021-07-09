@@ -40,7 +40,6 @@ TEST(Philosophers, Consistency) {
   table.philosophers[0].Eat();
   ASSERT_FALSE(table.forks[0]->TryGet());
   ASSERT_FALSE(table.forks[1]->TryGet());
-
   std::thread t([&] {
     table.philosophers[1].Eat();
     second_eating.store(true);
@@ -120,3 +119,11 @@ TEST(Philosophers, Frequent4) {
   Dining(&table, 1000, 1, 1);
 }
 
+///---------------------------------------------------------
+
+TEST(Philosophers, Frequent5) {
+    TimeoutGuard guard(3s);
+
+    Table table = SetUpTable(1);
+    Dining(&table, 1000, 1, 1);
+}

@@ -131,3 +131,26 @@ TEST(Reduce, TwoThreadsFaster) {
   ASSERT_GE(dur1.count(), 5 * dur2.count() / 4);
 }
 
+TEST(Reduce, Simple) {
+    const size_t n_threads = 7;
+    std::vector<int> v = {1, 2, 3, 4};
+
+    auto prod = [] (int a, int b) {
+        return a * b;
+    };
+    auto sum = [] (int a, int b) {
+        return a + b;
+    };
+
+    int result_p = std::reduce(v.begin(), v.end(), 1, prod);
+    int parallel_result_p = parallel_reduce(v.begin(), v.end(), 1, prod, n_threads);
+
+    int result_s = std::reduce(v.begin(), v.end(), 0, sum);
+    int parallel_result_s = parallel_reduce(v.begin(), v.end(), 0, sum, n_threads);
+
+    std::cout << result_p << " vs " << parallel_result_p << "\n";
+    std::cout << result_s << " vs " << parallel_result_s << "\n";
+
+    ASSERT_EQ(result_p, parallel_result_p);
+    ASSERT_EQ(result_s, parallel_result_s);
+}
