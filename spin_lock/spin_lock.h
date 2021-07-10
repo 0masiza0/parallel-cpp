@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <thread>
 
 class SpinLock {
  public:
@@ -8,14 +9,21 @@ class SpinLock {
   }
 
   void Lock() {
-    while (flag.test_and_set()) {}
+      for (;;) {
+          if (!locked_.exchange(true)) {
+              return;
+          }
+          while (locked_.load()) {
+              std::this_thread::yield();
+          }
+      }
   }
 
   void Unlock() {
-    flag.clear();
+    locked_.store(false);
   }
 
  private:
-  std::atomic_flag flag = ATOMIC_FLAG_INIT;
+  std::atomic<bool> locked_ = false;
 };
 
