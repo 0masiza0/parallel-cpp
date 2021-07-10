@@ -15,12 +15,12 @@ class ThreadSafeQueue {
   void Push(const T& value) {
     std::unique_lock lock(mutex_);
     queue_.push(value);
-    cv.notify_all();
+    cv_.notify_all();
   }
 
   T Pop() {
     std::unique_lock lock(mutex_);
-    cv.wait(lock, [&]() {return !queue_.empty();});
+    cv_.wait(lock, [&]() {return !queue_.empty();});
     auto value = queue_.front();
     queue_.pop();
     return value;
@@ -28,8 +28,9 @@ class ThreadSafeQueue {
 
   std::optional<T> TryPop() {
     std::unique_lock lock(mutex_);
-    if (queue_.empty())
+    if (queue_.empty()) {
         return std::optional<T>();
+    }
     auto value = queue_.front();
     queue_.pop();
     return value;
@@ -38,7 +39,7 @@ class ThreadSafeQueue {
 
  private:
   std::mutex mutex_;
-  std::condition_variable cv;
+  std::condition_variable cv_;
   std::queue<T> queue_;
 };
 
