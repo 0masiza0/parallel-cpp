@@ -31,24 +31,33 @@ class Fork {
 
 class Philosopher {
  public:
-  Philosopher(size_t /*id*/, Fork* /*left_fork*/, Fork* /*right_fork*/) {
-    // Your code
-  }
+  Philosopher(size_t id, Fork* left_fork, Fork* right_fork)
+    : id_(id)
+    , min_id_fork_(left_fork)
+    , max_id_fork_(right_fork)
+    {
+      if (min_id_fork_->Id() > max_id_fork_->Id()) {
+          std::swap(min_id_fork_, max_id_fork_);
+      }
+    }
 
   size_t Id() const {
-    // Your code
-    return -1;
+    return id_;
   }
 
   void Eat() {
-    // Your code
+    min_id_fork_->Get();
+    max_id_fork_->Get();
   }
 
   void Think() {
-    // Your code
+    max_id_fork_->Put();
+    min_id_fork_->Put();
   }
 
  private:
-  // Your code
+  const size_t id_;
+  Fork* min_id_fork_;
+  Fork* max_id_fork_;
 };
 
