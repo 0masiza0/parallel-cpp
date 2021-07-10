@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+#include <thread>
 
 class SpinLock {
  public:
@@ -7,14 +9,21 @@ class SpinLock {
   }
 
   void Lock() {
-    // Your code
+      for (;;) {
+          if (!locked_.exchange(true)) {
+              return;
+          }
+          while (locked_.load()) {
+              std::this_thread::yield();
+          }
+      }
   }
 
   void Unlock() {
-    // Your code
+    locked_.store(false);
   }
 
  private:
-  // Your code
+  std::atomic<bool> locked_ = false;
 };
 
