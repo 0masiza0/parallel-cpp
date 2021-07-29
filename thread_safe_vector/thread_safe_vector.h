@@ -21,22 +21,18 @@ public:
     }
 
     void PushBack(const T& value) {
-        sh_sz_.lock();
-        sh_cap_.lock();
+        std::unique_lock sz_lock(sh_sz_);
 
         if (vector_.size() == vector_.capacity()) {
-            sh_data_.lock();
+            std::unique_lock data_lock(sh_data_);
             vector_.push_back(value);
-            sh_data_.unlock();
         } else {
             vector_.push_back(value);
         }
 
-        sh_cap_.unlock();
-        sh_sz_.unlock();
     }
 
 private:
-    mutable std::shared_mutex sh_data_, sh_sz_, sh_cap_;
+    mutable std::shared_mutex sh_data_, sh_sz_;
     std::vector<T> vector_;
 };
