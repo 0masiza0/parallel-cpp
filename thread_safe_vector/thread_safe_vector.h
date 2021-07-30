@@ -1,31 +1,38 @@
 #pragma once
 
+#include <atomic>
 #include <vector>
-
+#include <shared_mutex>
 
 template <typename T>
 class ThreadSafeVector {
- public:
-  ThreadSafeVector() {
-  }
+public:
+    ThreadSafeVector() {
+    }
 
-  T operator[](size_t index) const {
-    // Your code
-    return vector_[index];
-  }
+    T operator[](size_t index) const {
+        std::shared_lock sh_data(sh_data_);
+        return vector_[index];
+    }
 
-  size_t Size() const {
-    // Your code
-    return vector_.size();
-  }
+    size_t Size() const {
+        std::shared_lock sh_sz(sh_sz_);
+        return vector_.size();
+    }
 
-  void PushBack(const T& value) {
-    // Your code
-    vector_.push_back(value);
-  }
+    void PushBack(const T& value) {
+        std::unique_lock sz_lock(sh_sz_);
 
- private:
-  // Your code
-  std::vector<T> vector_;
+        if (vector_.size() == vector_.capacity()) {
+            std::unique_lock data_lock(sh_data_);
+            vector_.push_back(value);
+        } else {
+            vector_.push_back(value);
+        }
+
+    }
+
+private:
+    mutable std::shared_mutex sh_data_, sh_sz_;
+    std::vector<T> vector_;
 };
-
